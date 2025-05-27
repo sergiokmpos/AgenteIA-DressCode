@@ -1,11 +1,25 @@
 Pergunta,Resposta,Feedback
-oi,"Desculpe, não consegui encontrar uma resposta apropriada para a pergunta ""oi"" com base nas informações contidas no arquivo CSV. A informação não está disponível. Posso te ajudar com outra pergunta?",Bom
-Seu chefe,Meu chefe é o Sérgio.,Bom
-cor vc gosta?,"Eu gosto da cor verde, que é a cor da qualidade!",Bom
-seu chefe?,Meu chefe se chama Sergio.,Bom
-oi,"Desculpe, mas a resposta para ""oi"" não foi encontrada no arquivo CSV. A informação não está disponível. Posso ajudar com outra pergunta?",Bom
-cor?,A cor favorita de Sergio.,Bom
-oi,"Desculpe, a resposta não está disponível no arquivo CSV. Como posso te ajudar com outras perguntas?",Bom
-cor?,A cor do Sergio.,Bom
-cor,A cor preferida do Sergio é vermelho.,Bom
-vc tem chefe?,Eu tenho um chefe chamado Sergio.,Bom
+Bom dia,Bom dia! O Sergio.,Ruim
+qual cor da qualidade?,A cor da qualidade é verde.,Bom
+hoje vai chover?,"Desculpe, não encontrei informações sobre previsão do tempo no meu conhecimento atual.",Bom
+oi,"Desculpe, a informação sobre esse tema não está disponível no meu conhecimento atual.",Bom
+cor?,"Desculpe, a informação sobre a cor não está disponível no meu conhecimento atual (baseado no CSV).",Bom
+cor favorita?,"Desculpe, não tenho informações sobre a cor favorita no meu conhecimento atual.",Ruim
+oi,"Desculpe, não tenho informações disponíveis sobre esse tema no momento.",Bom
+cor?,"Desculpe, a informação sobre a cor não está disponível no meu conhecimento atual (baseado no CSV).",Ruim
+Qual é o seu nome?,"Desculpe, não encontrei informações sobre meu nome no arquivo de dados disponível.",Ruim
+Qual é a sua idade?,"Desculpe, a informação sobre a minha idade não está disponível no meu conhecimento atual.",Ruim
+Qual é a sua cor favorita?,"Desculpe, a informação sobre minha cor favorita não está disponível no meu conhecimento atual (baseado no CSV).",Ruim
+Qual é o seu hobby?,"Desculpe, no momento não possuo informações sobre meu hobby no arquivo de dados.",Ruim
+Qual é o seu filme favorito?,"Desculpe, não tenho informações disponíveis sobre meu filme favorito no meu conhecimento atual (baseado no CSV).",Ruim
+Qual é o seu livro favorito?,"Desculpe, a informação sobre o livro favorito não está disponível no meu conhecimento atual (baseado no CSV).",Ruim
+oi,"Desculpe, ocorreu um erro ao tentar gerar a resposta.",Ruim
+cor?,"Desculpe, ocorreu um erro ao tentar gerar a resposta.",Ruim
+Bom dia,"Desculpe, não sei nada sobre este tema.",Bom
+COR,"Desculpe, não sei nada sobre este tema.",Bom
+Sergio,"Desculpe, não sei nada sobre este tema.",Bom
+bom dia,"Desculpe, não sei nada sobre este tema.",Bom
+cor?,"Desculpe, não sei nada sobre este tema.",Bom
+Qual é o seu livro favorito?,"Eu não tenho um livro favorito, mas posso sugerir alguns com base em seus interesses!",Bom
+Qual é o seu livro favorito?,"Desculpe, não sei nada sobre este tema.",Ruim
+Qual é o seu livro favorito?,"Eu não tenho um livro favorito, mas posso sugerir alguns com base nos seus interesses!",Bom
