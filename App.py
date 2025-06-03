@@ -1,153 +1,71 @@
-
-import openai
-import pandas as pd
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import FAISS
 import streamlit as st
-import os
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage
+import base64 # Para codificar a imagem em base64
+import io # Para manipular a imagem como bytes
 
-# --- Configuração e Carregamento ---
-# Configurar a API da OpenAI
-# ATENÇÃO: Expor a chave da API diretamente no código é uma falha de segurança grave.
-# Considere usar variáveis de ambiente ou um arquivo de configuração seguro.
-# Exemplo: openai_api_key = os.environ.get("OPENAI_API_KEY")
-openai_api_key = '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'
-openai.api_key = openai_api_key
+# Certifique-se de ter suas chaves de API configuradas como variáveis de ambiente ou passe diretamente
+# from dotenv import load_dotenv
+# load_dotenv()
 
-# Carregar o arquivo CSV
+# Carregue as regras de dress code de um arquivo local (por exemplo, "regras_dresscode.txt")
 try:
-    df = pd.read_csv('Content.csv')
+    with open("regras_dresscode.txt", "r", encoding="utf-8") as file:
+        regras = file.read()
 except FileNotFoundError:
-    st.error("Erro: Arquivo 'Content.csv' não encontrado.")
-    st.stop()  # Para a execução do script se o arquivo não for encontrado
+    st.error("O arquivo 'regras_dresscode.txt' não foi encontrado. Por favor, crie-o na mesma pasta do script.")
+    st.stop() # Interrompe a execução se o arquivo não for encontrado
 
-# --- Processamento de Embeddings e Busca ---
-# Criar embeddings para o conteúdo do CSV
-# Adiciona um try-except para lidar com possíveis erros na criação de embeddings
-try:
-    embeddings = OpenAIEmbeddings()
-    textos = df['Pergunta'].tolist()
-    vetor_store = FAISS.from_texts(textos, embeddings)
-except Exception as e:
-    st.error(f"Erro ao criar embeddings ou vetor store: {e}")
-    st.stop()
+# Configure o modelo multimodal da OpenAI (GPT-4o ou gpt-4-vision-preview)
+# É importante ter a chave de API da OpenAI configurada.
+# Você pode definir como variável de ambiente (OPENAI_API_KEY) ou passar diretamente:
+llm = ChatOpenAI(model="gpt-4o", temperature=0.2, openai_api_key='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') # Substitua 'SUA_CHAVE_API_OPENAI' pela sua chave real
 
-# Buscar informações baseadas em similaridade
-def buscar_informacao_similar(pergunta):
-    try:
-        # Aumentar o número de resultados retornados para melhorar a precisão
-        resultados = vetor_store.similarity_search(pergunta, k=5)  # k=5 busca os 5 mais similares
-        if resultados:
-            # Iterar sobre os resultados para encontrar a melhor correspondência no DataFrame
-            for resultado in resultados:
-                similar_pergunta = resultado.page_content
-                resposta = df[df['Pergunta'] == similar_pergunta].iloc[0]['Resposta']
-                if resposta:
-                    return resposta
-        return None
-    except Exception as e:
-        st.error(f"Erro na busca de similaridade: {e}")
-        return None
+# Interface com Streamlit
+st.title("Assistente de Dress Code")
+st.write("Digite sua dúvida e/ou faça upload de uma imagem para análise do dress code:")
 
-# --- Geração de Resposta com OpenAI ---
-# Criar um template de prompt
-def criar_prompt(pergunta, resposta_local):
-    # Contexto aprimorado para guiar a IA
-    contexto = """
-    Você é um assistente inteligente e amigável que responde perguntas baseadas estritamente nas informações fornecidas de um arquivo CSV local. O arquivo contém pares de Pergunta e Resposta sobre um tópico específico.
-    Sua tarefa é:
-    1. Analisar a 'Resposta encontrada no CSV'.
-    2. Reformular essa resposta de forma natural, clara e contextual para responder à 'Pergunta' do usuário.
-    3. Se a 'Resposta encontrada no CSV' indicar que a informação não foi encontrada (ex: "Desculpe, não sei nada sobre este tema."), você deve responder educadamente que a informação não está disponível no seu conhecimento atual (baseado no CSV).
-    4. Mantenha a resposta concisa e direta.
-    """
-    # Inclui a resposta local encontrada para que a IA a reformule
-    prompt = f"{contexto}\n\nPergunta do Usuário: {pergunta}\nInformação encontrada no CSV: {resposta_local}\n\nCom base na 'Informação encontrada no CSV', reformule a resposta para o usuário:"
-    return prompt
+user_text_input = st.text_area("Sua pergunta ou descrição da roupa:")
+uploaded_file = st.file_uploader("Faça upload de uma imagem (opcional)", type=["jpg", "jpeg", "png"])
 
-# Integrar com a API da OpenAI para respostas
-def responder_com_openai(pergunta):
-    resposta_local = buscar_informacao_similar(pergunta)
-    # Define a resposta local a ser usada no prompt
-    if resposta_local is None:
-        info_para_prompt = "Desculpe, não encontrei informações sobre este tema no meu conhecimento."
+# Linha de código para exibir a imagem em tamanho pequeno-médio
+if uploaded_file:
+    st.image(uploaded_file, caption="Imagem Carregada para Análise", width=150) # Define a largura 
+
+if st.button("Consultar"):
+    if not user_text_input and not uploaded_file:
+        st.error("Por favor, insira uma pergunta ou faça upload de uma imagem.")
     else:
-        info_para_prompt = resposta_local
-    prompt = criar_prompt(pergunta, info_para_prompt)
-    try:
-        resposta_openai = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "Você é um assistente inteligente que responde perguntas baseadas em um arquivo CSV local."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7  # Controla a criatividade da resposta (0.0 a 1.0)
-        )
-        resposta_texto = resposta_openai['choices'][0]['message']['content'].strip()
-        return resposta_texto
-    except Exception as e:
-        st.error(f"Erro ao chamar a API da OpenAI: {e}")
-        return "Desculpe, ocorreu um erro ao tentar gerar a resposta."
+        messages_content = []
 
-# --- Feedback ---
-# Função para salvar perguntas, respostas e feedback em um arquivo CSV
-def salvar_feedback(pergunta, resposta, feedback):
-    try:
-        if not os.path.exists('feedback.csv'):
-            feedback_df = pd.DataFrame(columns=['Pergunta', 'Resposta', 'Feedback'])
-        else:
-            feedback_df = pd.read_csv('feedback.csv')
-        novo_feedback = pd.DataFrame({'Pergunta': [pergunta], 'Resposta': [resposta], 'Feedback': [feedback]})
-        feedback_df = pd.concat([feedback_df, novo_feedback], ignore_index=True)
-        feedback_df.to_csv('feedback.csv', index=False)
-        st.success("Feedback salvo com sucesso!")
-    except Exception as e:
-        st.error(f"Erro ao salvar feedback: {e}")
+        # Adiciona as regras de dress code como parte da mensagem inicial do sistema
+        messages_content.append({"type": "text", "text": f"Você atua como um assistente especializado em regras de dress code. Utilize as seguintes regras para responder à pergunta:\n{regras}"})
 
-# --- Interface Streamlit ---
-st.title("Assistente Inteligente")
-st.write("O Assistente sobre o assunto que você treinou.")
+        # Adiciona a pergunta do usuário
+        if user_text_input:
+            messages_content.append({"type": "text", "text": f"Pergunta: {user_text_input}"})
 
-# Inicializar o estado da sessão
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+        # Adiciona a imagem, se houver
+        if uploaded_file:
+            # Lendo a imagem como bytes e codificando para base64
+            bytes_data = uploaded_file.getvalue()
+            base64_image = base64.b64encode(bytes_data).decode("utf-8")
+            messages_content.append({"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}})
 
-if "feedback_given" not in st.session_state:
-    st.session_state.feedback_given = True
+        # Adiciona a instrução final para o modelo
+        messages_content.append({"type": "text", "text": "Com base nas regras e/ou na imagem, responda se a roupa pode ser usada, deve ser usada ou não deve ser usada, detalhando os motivos."})
 
-# Mostrar o histórico de mensagens
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-
-# --- Lógica de Input e Resposta ---
-if st.session_state.feedback_given:
-    user_input = st.chat_input("Digite sua pergunta aqui...", key="user_input_active")
-    if user_input:
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        with st.chat_message("user"):
-            st.markdown(user_input)
-        with st.spinner("Pensando..."):
-            resposta = responder_com_openai(user_input)
-            st.session_state.messages.append({"role": "assistant", "content": resposta})
-            with st.chat_message("assistant"):
-                st.markdown(resposta)
-            st.session_state.feedback_given = False
-            st.rerun()
-
-# --- Lógica de Feedback ---
-if not st.session_state.feedback_given and len(st.session_state.messages) > 0:
-    st.write("Por favor, forneça seu feedback sobre a última resposta:")
-    col1, col2 = st.columns(2)
-    ultima_pergunta = st.session_state.messages[-2]["content"] if len(st.session_state.messages) >= 2 else "N/A"
-    ultima_resposta = st.session_state.messages[-1]["content"] if len(st.session_state.messages) >= 1 else "N/A"
-    with col1:
-        if st.button("👍 Bom", key="feedback_bom"):
-            salvar_feedback(ultima_pergunta, ultima_resposta, "Bom")
-            st.session_state.feedback_given = True
-            st.rerun()
-    with col2:
-        if st.button("👎 Ruim", key="feedback_ruim"):
-            salvar_feedback(ultima_pergunta, ultima_resposta, "Ruim")
-            st.session_state.feedback_given = True
-            st.rerun()
+        with st.spinner("Analisando..."):
+            try:
+                # Cria a mensagem HumanMessage com o conteúdo combinado (texto e/ou imagem)
+                response = llm.invoke(
+                    [
+                        HumanMessage(
+                            content=messages_content
+                        )
+                    ]
+                )
+                st.subheader("Resposta do Assistente:")
+                st.write(response.content)
+            except Exception as e:
+                st.error(f"Ocorreu um erro ao consultar o modelo: {e}. Verifique sua chave de API e se o modelo 'gpt-4o' está disponível para sua conta.")
