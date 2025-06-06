@@ -5,7 +5,7 @@ import base64
 import imghdr
 import os
 from dotenv import load_dotenv
-import fitz  # PyMuPDF
+from streamlit_pdf_viewer import pdf_viewer
 
 # Carregar .env
 load_dotenv()
@@ -17,8 +17,21 @@ st.set_page_config(page_title="Assistente de Dress Code", layout="wide")
 st.image("banner.jpg", use_container_width=False)
 
 # Sidebar de navegação
+
+st.sidebar.image("Logo.png", use_container_width=True)
+
 st.sidebar.title("📌 Navegação")
-pagina = st.sidebar.radio("Ir para:", ["🏠 Home", "🧥 Assistente de Dress Code", "📄 Dress Code"])
+pagina = st.sidebar.radio(
+    "Ir para:",
+    [
+        "🏠 Home",
+        "🧥 Assistente de Dress Code",
+        "📄 Dress Code",
+        "ℹ️ Créditos & Versões"
+    ]
+)
+
+st.sidebar.image("capa.png", use_container_width=False)
 
 # Obter chave da API
 openai_key = os.getenv("OPENAI_API_KEY") or st.secrets.get("openai_key", None)
@@ -34,12 +47,7 @@ if pagina == "🏠 Home":
     st.write("""
     Este aplicativo ajuda você a verificar se uma roupa está adequada conforme regras específicas de vestimenta (dress code).
     
-    ### Funcionalidades disponíveis:
-    - 📷 Análise de imagens com IA
-    - ✏️ Interpretação de descrições escritas
-    - 📄 Visualização de documentos internos
-    - 🔐 Regras de dress code personalizadas (via arquivo `regras_dresscode.txt`)
-    
+
     ---
     
     ### Como usar:
@@ -53,15 +61,6 @@ elif pagina == "🧥 Assistente de Dress Code":
     st.title("👔 Assistente de Dress Code")
     st.write("Descreva sua dúvida ou envie uma imagem para análise:")
 
-
-
-    # Carrega regras
-    try:
-        with open("regras_dresscode.txt", "r", encoding="utf-8") as file:
-            regras = file.read()
-    except FileNotFoundError:
-        st.error("❌ O arquivo 'regras_dresscode.txt' não foi encontrado.")
-        st.stop()
 
     # Entradas
     user_text_input = st.text_area("Sua pergunta ou descrição da roupa:")
@@ -115,11 +114,47 @@ elif pagina == "📄 Dress Code":
     if not os.path.exists(pdf_path):
         st.error("❌ O arquivo PDF 'Orientações Dress Code Fábrica YBL.pdf' não foi encontrado no projeto.")
     else:
-        try:
-            with fitz.open(pdf_path) as doc:
-                for page in doc:
-                    text = page.get_text()
-                    st.write(f"### Página {page.number + 1}")
-                    st.write(text if text.strip() else "*[Sem texto detectado]*")
-        except Exception as e:
-            st.error(f"❌ Erro ao abrir o PDF: {e}")
+        # Upload necessário para usar Google Viewer
+        # Ou você deve hospedar o PDF em um link público (ex: Google Drive compartilhado ou Dropbox público)
+
+        st.info("Baixe abaixo o Dress code completo original:")
+
+        with open(pdf_path, "rb") as f:
+            pdf_bytes = f.read()
+
+        st.download_button(
+            label="📥 Baixar PDF do Dress Code",
+            data=pdf_bytes,
+            file_name="Dress_Code_Fabrica_YBL.pdf",
+            mime="application/pdf"
+        )
+
+# Página: Créditos & Histórico de Versões
+elif pagina == "ℹ️ Créditos & Versões":
+    st.title("ℹ️ Créditos & Histórico de Versões")
+    
+    st.subheader("👨‍💻 Créditos")
+    st.write("""
+    **Desenvolvedor:** Sergio Paiva de Campos  
+    **Contato:** sergio.campos@br.yazaki.com  
+    """)
+
+    st.subheader("📜 Histórico de Versões")
+
+    
+    st.write("""
+    - **v1.0 (2025-06-06)**  
+      - Primeira versão funcional do Assistente de Dress Code  
+      - Análise de texto e imagem com IA  
+      - Visualização de documentos internos (PDF)
+      - 📷 Análise de imagens com IA
+      - ✏️ Interpretação de descrições escritas
+      - 📄 Visualização de documentos internos
+      - 🔐 Regras de dress code personalizadas (via arquivo `regras_dresscode.txt`)
+    ""    
+     
+        - **v1.1 (planejado)**  
+          - Melhor exibição de PDFs  
+          - Página de créditos  
+          - Otimizações de UX
+    """)
