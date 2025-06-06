@@ -5,7 +5,7 @@ import base64
 import imghdr
 import os
 from dotenv import load_dotenv
-from streamlit_pdf_viewer import pdf_viewer
+
 
 # Carregar .env
 load_dotenv()
@@ -20,7 +20,7 @@ st.image("banner.jpg", use_container_width=False)
 
 st.sidebar.image("Logo.png", use_container_width=True)
 
-st.sidebar.title("📌 Navegação")
+#st.sidebar.title("🤖 - Paginas")
 pagina = st.sidebar.radio(
     "Ir para:",
     [
@@ -39,6 +39,11 @@ if not openai_key:
     st.error("❌ Chave da API OpenAI não foi encontrada. Configure via .env ou st.secrets.")
     st.stop()
 
+# Carregar regras do dress code
+with open("regras_dresscode.txt", "r", encoding="utf-8") as f:
+    regras = f.read()
+
+# Criar LLM
 llm = ChatOpenAI(model="gpt-4o", temperature=0.2, openai_api_key=openai_key)
 
 # Página: HOME
@@ -67,7 +72,7 @@ elif pagina == "🧥 Assistente de Dress Code":
     uploaded_file = st.file_uploader("Envie uma imagem (JPEG ou PNG)", type=["jpg", "jpeg", "png"])
 
     if uploaded_file:
-        st.image(uploaded_file, caption="Imagem enviada", height=100)
+        st.image(uploaded_file, caption="Imagem enviada", width=100)
 
     if st.button("Consultar"):
         if not user_text_input and not uploaded_file:
@@ -143,18 +148,29 @@ elif pagina == "ℹ️ Créditos & Versões":
 
     
     st.write("""
-    - **v1.0 (2025-06-06)**  
-      - Primeira versão funcional do Assistente de Dress Code  
-      - Análise de texto e imagem com IA  
-      - Visualização de documentos internos (PDF)
-      - 📷 Análise de imagens com IA
-      - ✏️ Interpretação de descrições escritas
-      - 📄 Visualização de documentos internos
-      - 🔐 Regras de dress code personalizadas (via arquivo `regras_dresscode.txt`)
-    ""    
-     
-        - **v1.1 (planejado)**  
-          - Melhor exibição de PDFs  
-          - Página de créditos  
-          - Otimizações de UX
+      - **v1.0 (2025-06-06)**   
+         - Interpretação de descrições escritas e imagens com IA
+         - Download de documento base
+        - Regras de dress code personalizadas
+                     
+      - **v2.0 (planejado)**  
+        - Função upload de imagens por camera  
+         - gerar log com input e output  
+        - Otimizações de UX
+        
+      - **v3.0 (planejado)**  
+         - Função de feed-back do usuário
+         - Otimizações de UX
     """)
+
+st.markdown(
+    """
+    <hr>
+    <div style="text-align:center; font-size: 0.9em; color: #888;">
+        All for one. One for All ·  
+        <a href="mailto:sergio.campos@br.yazaki.com" style="text-decoration: none; color: #888;">Contato</a> ·  
+        <a href="https://github.com/sergiokmpos" target="_blank" style="text-decoration: none; color: #888;">GitHub</a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
