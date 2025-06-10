@@ -63,7 +63,6 @@ Um Agente de IA é como um ajudante inteligente que vive dentro de computadores 
 ## Capturas de Tela
 
 ### Página Inicial
-![Página Inicial](imagesistente de Dress Code
 
 <img width="900" src="https://github.com/sergiokmpos/AgenteIA-DressCode/blob/main/Cover.png"/>
 
