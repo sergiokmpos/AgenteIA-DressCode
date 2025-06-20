@@ -2,6 +2,12 @@
 
 ## Prova de Conceito para uso de Agentes de IA
 
+## Capturas de Tela
+
+### Página Inicial
+
+<img width="900" src="https://github.com/sergiokmpos/AgenteIA-DressCode/blob/main/Cover.png"/>
+
 ### POC – Agente IA Dresscode YAZAKI
 
 ---
@@ -60,11 +66,7 @@ Um Agente de IA é como um ajudante inteligente que vive dentro de computadores 
 
 ---
 
-## Capturas de Tela
 
-### Página Inicial
-
-<img width="900" src="https://github.com/sergiokmpos/AgenteIA-DressCode/blob/main/Cover.png"/>
 
 ---
 
